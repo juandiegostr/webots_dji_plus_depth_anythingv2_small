@@ -140,7 +140,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 ai_path = os.path.join(script_dir, MODEL_FILE)
 
 INPUT_SIZE = 364
-PASOS_A_SALTAR = 12
+PASOS_A_SALTAR = 8
 FACTOR_METRICO = 12.0
 
 class DepthONNX:
@@ -164,6 +164,28 @@ class DepthONNX:
 ai = DepthONNX(ai_path)
 
 contador_pasos = 0
+
+# ==========================================
+# 5.1 GRABACIÓN VÍDEO (solo cámara del dron)
+# ==========================================
+GRABAR_VIDEO = True              # Pon False si no quieres grabar
+VIDEO_FPS = 20.0                 # Ajusta FPS a tu gusto
+VIDEO_PATH = "drone_camera.mp4"  # Ruta/archivo de salida
+
+video_out = None
+if GRABAR_VIDEO:
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    video_out = cv2.VideoWriter(
+        VIDEO_PATH,
+        fourcc,
+        VIDEO_FPS,
+        (camera.getWidth(), camera.getHeight())
+    )
+    if not video_out.isOpened():
+        print("ERROR: no se pudo abrir el VideoWriter. Prueba a cambiar el codec o la ruta.")
+        video_out = None
+    else:
+        print(f"Grabando vídeo de cámara en: {VIDEO_PATH}")
 
 # ==========================================
 # 6. LOOP PRINCIPAL (CONTROL + IA)
@@ -195,17 +217,17 @@ while robot.step(timestep) != -1:
     key = keyboard.getKey()
     while key > 0:
         if key == Keyboard.UP:
-            pitch_disturbance = -2.0
+            pitch_disturbance = -3.0
         elif key == Keyboard.DOWN:
-            pitch_disturbance = 2.0
+            pitch_disturbance = 3.0
         elif key == Keyboard.RIGHT:
-            yaw_disturbance = -1.3
+            yaw_disturbance = -2.0
         elif key == Keyboard.LEFT:
-            yaw_disturbance = 1.3
+            yaw_disturbance = 2.0
         elif key == (Keyboard.SHIFT + Keyboard.RIGHT):
-            roll_disturbance = -1.0
+            roll_disturbance = -1.5
         elif key == (Keyboard.SHIFT + Keyboard.LEFT):
-            roll_disturbance = 1.0
+            roll_disturbance = 1.5
         elif key == (Keyboard.SHIFT + Keyboard.UP):
             target_altitude += 0.05
             print(f"target altitude: {target_altitude:.2f} [m]")
@@ -236,12 +258,18 @@ while robot.step(timestep) != -1:
 
     # =============================
     # IA Depth (tu bloque, igual)
+    # + grabación de vídeo
     # =============================
     if contador_pasos % PASOS_A_SALTAR == 0:
         img_raw = camera.getImage()
         if img_raw:
             img_np = np.frombuffer(img_raw, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4))
             img_rgb = img_np[:, :, :3]
+
+            # Guardar frame RGB (misma entrada que la red)
+            if video_out is not None:
+                video_out.write(cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR))
+
             depth_raw = ai.infer(img_rgb)
 
             depth_meters = FACTOR_METRICO / (depth_raw + 1e-6)
@@ -259,5 +287,10 @@ while robot.step(timestep) != -1:
         break
 
     contador_pasos += 1
+
+# Cierre limpio
+if video_out is not None:
+    video_out.release()
+    print(f"Vídeo guardado: {VIDEO_PATH}")
 
 cv2.destroyAllWindows()
