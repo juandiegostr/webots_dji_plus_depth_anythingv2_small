@@ -10,12 +10,14 @@ Este proyecto es una simulación en Webots de un dron DJI Mavic 2 Pro que incorp
 TFG_Webots/
 ├── controllers/
 │   └── controlador_depth_onnx/
-│       ├── controlador_depth_onnx.py    # Script principal del controlador
-│       ├── depth_anything_vits14_364.onnx  # Modelo ONNX para estimación de profundidad
-│       └── runtime.ini                  # Configuración del entorno Python
+│       ├── controlador_depth_onnx.py          # Script principal del controlador
+│       ├── depth_anything_vits14_364.onnx     # Modelo ONNX estándar para estimación de profundidad
+│       ├── depth_anything_vits14_364_jetson.onnx  # Modelo ONNX optimizado para dispositivos Jetson (Nano, TX2, etc.)
+│       ├── export_final.py                     # Script para exportar el modelo a formato ONNX
+│       └── runtime.ini                         # Configuración del entorno Python
 └── worlds/
-    ├── mavic_2_pro.wbt                  # Mundo con entorno rural y árboles
-    └── sin_arboles.wbt                  # Mundo sin árboles
+    ├── mavic_2_pro.wbt                         # Mundo con entorno rural y árboles
+    └── sin_arboles.wbt                         # Mundo sin árboles
 ```
 
 ## Características Principales
@@ -64,7 +66,7 @@ pip install opencv-python numpy onnxruntime-gpu
 Para soporte GPU, instala los drivers de NVIDIA y CUDA toolkit correspondiente.
 
 ### 3. Verificar el Modelo ONNX
-El modelo `depth_anything_vits14_364.onnx` debe estar en la carpeta `controllers/controlador_depth_onnx/`. Si no está presente, descárgalo desde el repositorio oficial de Depth Anything.
+Los modelos `depth_anything_vits14_364.onnx` (estándar) y `depth_anything_vits14_364_jetson.onnx` (optimizado para Jetson) deben estar en la carpeta `controllers/controlador_depth_onnx/`. Si no están presentes, utiliza el script `export_final.py` para generar el modelo optimizado desde los pesos originales de Depth Anything. El script exporta el modelo a formato ONNX con resolución 364x364 optimizada para dispositivos embebidos como Jetson Nano, TX2 o Xavier.
 
 ## Uso
 
@@ -139,7 +141,8 @@ El script `controlador_depth_onnx.py` maneja:
 ### Modelo de IA
 - **Depth Anything V2**: Modelo de visión por computadora para estimación monocular de profundidad
 - **Formato**: ONNX para compatibilidad multiplataforma
-- **Optimización**: Soporte para ejecución en GPU NVIDIA vía CUDA
+- **Optimización**: Soporte para ejecución en GPU NVIDIA vía CUDA y versión optimizada para dispositivos Jetson (Nano, TX2, Xavier, etc.)
+- **Exportación**: Script `export_final.py` para convertir modelos PyTorch a ONNX con configuración específica para dispositivos embebidos
 
 ### Simulación Webots
 - **Robot**: DJI Mavic 2 Pro con física realista
