@@ -164,19 +164,10 @@ Asegúrate de que todas las librerías estén instaladas en el entorno especific
 
 ## Desarrollo y Contribución
 
-Este proyecto forma parte de un Trabajo de Fin de Grado (TFG). 
+Este proyecto forma parte de un Trabajo de Fin de Grado (TFG) en Ingeniería Robótica. 
 
 ## Licencias y Créditos
 
 - **Webots**: LGPL 2.1
 - **Depth Anything**: MIT License (Lihe Yang et al.)
 - **OpenCV, NumPy, ONNX Runtime**: Licencias respectivas
-
-## Contacto
-
-Proyecto desarrollado como parte de un TFG en Ingeniería Robótica.
-Para preguntas o colaboraciones, contacta al autor del proyecto.
-
----
-</content>
-<parameter name="filePath">/home/jd/TFG_Webots/README.md
